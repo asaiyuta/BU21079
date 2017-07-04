@@ -49,6 +49,11 @@ public:
 		Wire.endTransmission();
 	}
 
+    void SWReset(){
+        SOFTRESET0(0x55);
+        SOFTRESET1(0xAA);
+    }
+
     const bool isHWInted(){
         if(intPin()){
             INT_STATUS = INTERRUPT();
