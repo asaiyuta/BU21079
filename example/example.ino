@@ -16,8 +16,6 @@ void setup(){
     Serial.println("HWInted!!");
     waitSerial();
     sens.UNIT_SENS_NUM(0).TH_SLEEP_H(0);
-
-
     sens.initializeEnd();
     while(!sens.isSWCaled()){}
     Serial.println("SWcaled!!");
