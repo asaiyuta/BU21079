@@ -4,7 +4,7 @@
 #include <Wire.h>
 #include <Arduino.h>
 
-class BU21079_RawDataPerther{
+class BU21079{
 private:
     struct FastRead{
     	FastRead(const int Pin)
@@ -24,10 +24,10 @@ private:
     };
 
 public:
-	BU21079_RawDataPerther(const uint8_t pin)
+	BU21079(const uint8_t pin)
 	: intPin(pin)
 	{}
-	~BU21079_RawDataPerther(){}
+	~BU21079(){}
 
     void begin(){
         Wire.begin();
@@ -42,10 +42,21 @@ public:
 		return (Wire.read());
 	}
 
+    template<size_t SIZE>
+    void readRegisterInc(const uint8_t startReg,uint8_t* buffer) {
+        Wire.beginTransmission(i2cAddr);
+        Wire.write(startReg);
+        Wire.endTransmission();
+        while (Wire.requestFrom(i2cAddr, SIZE) != SIZE);
+        for(loopCounter = 0 ; loopCounter < SIZE ; ++loopCounter){
+            buffer[loopCounter] = Wire.read();
+        }
+    }
+
 	void writeRegister(const uint8_t reg,const uint8_t value) {
 		Wire.beginTransmission(i2cAddr);
-		Wire.write(reg); // register to read
-		Wire.write(value);
+		Wire.write(reg);
+        Wire.write(value);
 		Wire.endTransmission();
 	}
 
@@ -99,11 +110,12 @@ private:
 
 	const uint8_t i2cAddr{0x5C};
 	const FastRead intPin;
+    uint8_t loopCounter;
 
 //REGLIST
     class RegAndValChainSetter{
     public:
-    	RegAndValChainSetter(BU21079_RawDataPerther* parent, const uint8_t addr)
+    	RegAndValChainSetter(BU21079* parent, const uint8_t addr)
     	: holder(parent)
     	, val(0)
     	, addr(addr)
@@ -114,7 +126,7 @@ private:
     		return val;
     	}
 
-    	BU21079_RawDataPerther &operator ()(const uint8_t value){
+    	BU21079 &operator ()(const uint8_t value){
     		val = value;
     		holder -> writeRegister(addr, val);
     		return *holder;
@@ -123,7 +135,7 @@ private:
     	uint8_t val;
     	const uint8_t addr;
     private:
-    	BU21079_RawDataPerther* holder;
+    	BU21079* holder;
     };
 
 	//REGMAP

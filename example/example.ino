@@ -1,7 +1,7 @@
 #include <Wire.h>
 #include "BU21079.h"
 
-BU21079_RawDataPerther sens(10);
+BU21079 sens(10);
 
 void waitSerial(){
     while(Serial.available() == 0){}
